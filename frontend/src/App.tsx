@@ -1,14 +1,30 @@
 import { useEffect, useState } from 'react';
 
-type Salsa = {
-    item_name: string
-    spice_level: string
-    image_url: string
-    size: number
-    price: number
-};
+// type Salsa = {
+//     item_name: string
+//     spice_level: string
+//     image_url: string
+//     size: number
+//     price: number
+// };
+//
+// type Condiment = {
+//     item_name: string
+//     image_url: string
+//     size: number
+//     price: number
+// };
 
-type OrderItem = Salsa & {
+type Product = {
+    item_name: string,
+    category: 'salsa' | 'condiment',
+    size: number,
+    price: number,
+    spice_level?: number,
+    image_url: string,
+}
+
+type OrderItem = Product & {
     quantity: number
 };
 
@@ -16,17 +32,19 @@ type OrderItem = Salsa & {
 
 function App() {
 
-    const [salsaList, setSalsaList] = useState<Salsa[]>([]);
+    const [productList, setProductList] = useState<Product[]>([]);
+
     const [cartQuantities, setCartQuantities] = useState<Record<string, number>>({});
     const [orderItems, setOrderItems] = useState<OrderItem[]>([]);
 
     useEffect(() => {
-        async function fetchSalsas() {
-            const response = await fetch('http://127.0.0.1:8000/salsas/');
+        async function fetchProducts() {
+            const response = await fetch('http://127.0.0.1:8000/products/');
             const data = await response.json();
-            setSalsaList(data);
-        }
-        fetchSalsas();
+            setProductList(data);
+        };
+
+        fetchProducts();
     }, []);
 
     function increaseQuantity(itemName: string) {
@@ -44,30 +62,30 @@ function App() {
     }
 
     function handleClick() {
-        const selectedSalsas = salsaList
-            .map((salsa) => ({
-                ...salsa,
-                quantity: cartQuantities[salsa.item_name] || 0,
+        const selectedProducts = productList
+            .map((product) => ({
+                ...product,
+                quantity: cartQuantities[product.item_name] || 0,
             }))
-            .filter((salsa) => salsa.quantity > 0);
+            .filter((product) => product.quantity > 0);
 
-        if (selectedSalsas.length === 0) {
+        if (selectedProducts.length === 0) {
             alert('Your cart is empty');
             return;
         }
 
-        console.log('Ordered salsas:', selectedSalsas);
-        setOrderItems(selectedSalsas);
+        console.log('Order placed', selectedProducts);
+        setOrderItems(selectedProducts);
         setCartQuantities({});
     }
 
-    const totalItems = salsaList.reduce(
-        (total, salsa) => total + (cartQuantities[salsa.item_name] || 0),
+    const totalItems = productList.reduce(
+        (total, product) => total + (cartQuantities[product.item_name] || 0),
         0
     );
-    const totalPrice = salsaList.reduce(
-        (total, salsa) =>
-            total + (cartQuantities[salsa.item_name] || 0) * salsa.price,
+    const totalPrice = productList.reduce(
+        (total, product) =>
+            total + (cartQuantities[product.item_name] || 0) * product.price,
         0
     );
 
@@ -90,34 +108,38 @@ function App() {
             <PageHeader />
 
             <section className="mx-auto mt-10 max-w-7xl rounded-3xl bg-red-100 px-4 py-8 shadow-sm sm:px-6 lg:px-8">
-                <h2 className="text-3xl font-bold tracking-tight text-gray-900">Salsas</h2>
+                <h2 className="text-3xl font-bold tracking-tight text-gray-900">products</h2>
 
                 <div className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-                    {salsaList.map((salsa) => {
-                        const amount = cartQuantities[salsa.item_name] || 0;
+                    {productList.map((product) => {
+                        const amount = cartQuantities[product.item_name] || 0;
 
                         return (
-                            <div key={salsa.item_name} className="rounded-2xl bg-white p-3 shadow-sm transition hover:-translate-y-1 hover:shadow-md">
+                            <div key={product.item_name} className="rounded-2xl bg-white p-3 shadow-sm transition hover:-translate-y-1 hover:shadow-md">
                                 <img
-                                    alt={salsa.item_name}
-                                    src={salsa.image_url}
+                                    alt={product.item_name}
+                                    src={product.image_url}
                                     className="aspect-square w-full rounded-xl bg-gray-200 object-cover"
                                 />
                                 <div className="mt-4 flex justify-between gap-4">
                                     <div>
                                         <h3 className="text-base font-semibold text-gray-900">
-                                            <a href={salsa.item_name}>
-                                                {salsa.item_name}
+                                            <a href={product.item_name}>
+                                                {product.item_name}
                                             </a>
                                         </h3>
-                                        <p className="mt-1 text-base text-gray-500">{salsa.spice_level}</p>
                                     </div>
-                                    <p className="shrink-0 text-base font-medium text-gray-900">{salsa.price} NOK</p>
+                                    <p className="shrink-0 text-base font-medium text-gray-900">{product.price} NOK</p>
                                 </div>
+                                {product.spice_level && (
+                                    <p className="mt-3 text-center text-base text-gray-500">
+                                        {'🌶️'.repeat(product.spice_level)}
+                                    </p>
+                                )}
                                 <CardCounter
                                     amount={amount}
-                                    onDecrease={() => decreaseQuantity(salsa.item_name)}
-                                    onIncrease={() => increaseQuantity(salsa.item_name)}
+                                    onDecrease={() => decreaseQuantity(product.item_name)}
+                                    onIncrease={() => increaseQuantity(product.item_name)}
                                 />
                             </div>
                         );
@@ -128,9 +150,11 @@ function App() {
                     onClick={handleClick}
                     className="mt-8 w-full rounded-xl bg-red-600 py-4 text-xl font-semibold text-white hover:bg-red-700"
                 >
-                    Order salsas
+                    Order products
                 </button>
             </section>
+
+
         </div>
 
     );
@@ -143,7 +167,7 @@ function PageHeader() {
                 Condimentos Superior
             </h1>
             <p className="mt-4 text-base text-gray-500 sm:text-lg">
-                Ricas Salsas hechas a mano.
+                Ricas condiments hechas a mano.
             </p>
         </header>
     );
@@ -186,7 +210,11 @@ function OrderOverview({
                             <div className="mt-4 flex justify-between gap-4">
                                 <div>
                                     <h3 className="text-base font-semibold text-gray-900">{item.item_name}</h3>
-                                    <p className="mt-1 text-base text-gray-500">{item.spice_level}</p>
+                                    {item.spice_level && (
+                                        <p className="mt-1 text-base text-gray-500">
+                                            {'🌶️'.repeat(item.spice_level)}
+                                        </p>
+                                    )}
                                     <p className="mt-1 text-base text-gray-500">
                                         {item.quantity} x {item.price} NOK
                                     </p>
