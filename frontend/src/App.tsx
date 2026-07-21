@@ -39,7 +39,7 @@ function App() {
 
     useEffect(() => {
         async function fetchProducts() {
-            const response = await fetch('http://127.0.0.1:8000/products/');
+            const response = await fetch('http://omarchy:8000/products/');
             const data = await response.json();
             setProductList(data);
         };
