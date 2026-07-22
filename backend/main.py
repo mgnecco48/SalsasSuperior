@@ -8,7 +8,7 @@ from pydantic import BaseModel, Field
 product_list = [
     {
         "item_name": "Salsa Verde",
-        "category": "Salsa",
+        "category": "Salsas",
         "spice_level": 1,
         "size": 270,
         "desc": "Bright and mild green salsa.",
@@ -17,7 +17,7 @@ product_list = [
     },
     {
         "item_name": "Salsa Roja",
-        "category": "Salsa",
+        "category": "Salsas",
         "spice_level": 2,
         "size": 270,
         "desc": "Classic smoky red salsa.",
@@ -26,7 +26,7 @@ product_list = [
     },
     {
         "item_name": "Salsa Macha",
-        "category": "Salsa",
+        "category": "Salsas",
         "spice_level": 4,
         "size": 270,
         "desc": "Crunchy chile oil salsa.",
@@ -35,7 +35,7 @@ product_list = [
     },
     {
         "item_name": "Salsa Habanero",
-        "category": "Salsa",
+        "category": "Salsas",
         "spice_level": 5,
         "size": 270,
         "desc": "Hot and fruity habanero salsa.",
@@ -44,20 +44,20 @@ product_list = [
     },
     {
         "item_name": "Tajin",
-        "category": "Condiment",
+        "category": "Condiments",
         "spice_level": 2,
         "size": 142,
         "desc": "Tangy chile lime seasoning.",
-        "image_url": "http://127.0.0.1:8000/media/SalsaVerde.png",
+        "image_url": "http://127.0.0.1:8000/media/Tajin.png",
         "price": 120,
     },
     {
         "item_name": "Taco Seasoning",
-        "category": "Condiment",
+        "category": "Condiments",
         "spice_level": 1,
         "size": 50,
         "desc": "Savory taco spice blend.",
-        "image_url": "http://127.0.0.1:8000/media/SalsaVerde.png",
+        "image_url": "http://127.0.0.1:8000/media/TacoSeasoning.png",
         "price": 90,
     },
 ]
@@ -65,7 +65,7 @@ product_list = [
 
 class Product(BaseModel):
     item_name: str
-    category: Literal["Salsa", "Condiment"]
+    category: Literal["Salsas", "Condiments"]
     spice_level: Literal[1, 2, 3, 4, 5] | None = None
     size: int
     desc: str | None = None

@@ -17,7 +17,7 @@ import { useEffect, useState } from 'react';
 
 type Product = {
     item_name: string,
-    category: 'salsa' | 'condiment',
+    category: 'salsas' | 'condiments',
     size: number,
     price: number,
     spice_level?: number,
@@ -34,12 +34,13 @@ function App() {
 
     const [productList, setProductList] = useState<Product[]>([]);
 
+
     const [cartQuantities, setCartQuantities] = useState<Record<string, number>>({});
     const [orderItems, setOrderItems] = useState<OrderItem[]>([]);
 
     useEffect(() => {
         async function fetchProducts() {
-            const response = await fetch('http://omarchy:8000/products/');
+            const response = await fetch('http://localhost:8000/products/');
             const data = await response.json();
             setProductList(data);
         };
@@ -98,6 +99,7 @@ function App() {
         );
     }
 
+    const categories = [...new Set(productList.map((product) => product.category))];
 
     return (
         <div className="font-roboto min-h-screen bg-[#f5f0e6] px-4 py-6 sm:px-8 lg:px-12">
@@ -108,43 +110,55 @@ function App() {
             <PageHeader />
 
             <section className="mx-auto mt-10 max-w-7xl rounded-3xl bg-red-100 px-4 py-8 shadow-sm sm:px-6 lg:px-8">
-                <h2 className="text-3xl font-bold tracking-tight text-gray-900">products</h2>
+                {categories.map((category) => {
+                    const productsInCategory = productList.filter(
+                        (product) => product.category === category
+                    );
 
-                <div className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-                    {productList.map((product) => {
-                        const amount = cartQuantities[product.item_name] || 0;
+                    return (
+                        <div key={category} className="mt-8">
+                            <h3 className=" font-pirata text-3xl font-bold tracking-tight text-red-600">
+                                {category}
+                            </h3>
 
-                        return (
-                            <div key={product.item_name} className="rounded-2xl bg-white p-3 shadow-sm transition hover:-translate-y-1 hover:shadow-md">
-                                <img
-                                    alt={product.item_name}
-                                    src={product.image_url}
-                                    className="aspect-square w-full rounded-xl bg-gray-200 object-cover"
-                                />
-                                <div className="mt-4 flex justify-between gap-4">
-                                    <div>
-                                        <h3 className="text-base font-semibold text-gray-900">
-                                            <a href={product.item_name}>
-                                                {product.item_name}
-                                            </a>
-                                        </h3>
-                                    </div>
-                                    <p className="shrink-0 text-base font-medium text-gray-900">{product.price} NOK</p>
-                                </div>
-                                {product.spice_level && (
-                                    <p className="mt-3 text-center text-base text-gray-500">
-                                        {'🌶️'.repeat(product.spice_level)}
-                                    </p>
-                                )}
-                                <CardCounter
-                                    amount={amount}
-                                    onDecrease={() => decreaseQuantity(product.item_name)}
-                                    onIncrease={() => increaseQuantity(product.item_name)}
-                                />
+                            <div className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+                                {productsInCategory.map((product) => {
+                                    const amount = cartQuantities[product.item_name] || 0;
+
+                                    return (
+                                        <div key={product.item_name} className="rounded-2xl bg-white p-3 shadow-sm transition hover:-translate-y-1 hover:shadow-md">
+                                            <img
+                                                alt={product.item_name}
+                                                src={product.image_url}
+                                                className="aspect-square w-full rounded-xl bg-gray-200 object-cover"
+                                            />
+                                            <div className="mt-4 flex justify-between gap-4">
+                                                <div>
+                                                    <h3 className="text-base font-semibold text-gray-900">
+                                                        <a href={product.item_name}>
+                                                            {product.item_name}
+                                                        </a>
+                                                    </h3>
+                                                </div>
+                                                <p className="shrink-0 text-base font-medium text-gray-900">{product.price} NOK</p>
+                                            </div>
+                                            {product.spice_level && (
+                                                <p className="mt-3 text-center text-base text-gray-500">
+                                                    {'🌶️'.repeat(product.spice_level)}
+                                                </p>
+                                            )}
+                                            <CardCounter
+                                                amount={amount}
+                                                onDecrease={() => decreaseQuantity(product.item_name)}
+                                                onIncrease={() => increaseQuantity(product.item_name)}
+                                            />
+                                        </div>
+                                    );
+                                })}
                             </div>
-                        );
-                    })}
-                </div>
+                        </div>
+                    );
+                })}
 
                 <button
                     onClick={handleClick}
@@ -155,7 +169,7 @@ function App() {
             </section>
 
 
-        </div>
+        </div >
 
     );
 }
